@@ -24,6 +24,7 @@ using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Dispatcher;
 using System.Web.Http.ExceptionHandling;
+using Autofac.Util;
 using Thinktecture.IdentityServer.Core.Logging;
 
 namespace Thinktecture.IdentityServer.Core.Configuration.Hosting
@@ -71,10 +72,11 @@ namespace Thinktecture.IdentityServer.Core.Configuration.Hosting
                 var httpControllerType = typeof (IHttpController);
                 return typeof (WebApiConfig)
                     .Assembly
-                    .GetTypes()
+                    .GetLoadableTypes()
                     .Where(t => t.IsClass && !t.IsAbstract && httpControllerType.IsAssignableFrom(t))
                     .ToList();
             }
+
         }
     }
 }
