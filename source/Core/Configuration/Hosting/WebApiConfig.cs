@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using System.Reflection;
 using Autofac;
 using Autofac.Integration.WebApi;
 using System;
@@ -69,9 +70,19 @@ namespace Thinktecture.IdentityServer.Core.Configuration.Hosting
             public ICollection<Type> GetControllerTypes(IAssembliesResolver _)
             {
                 var httpControllerType = typeof (IHttpController);
-                return typeof (WebApiConfig)
-                    .Assembly
-                    .GetTypes()
+                IEnumerable<Type> allTypes;
+                try {
+                    allTypes = typeof (WebApiConfig)
+                        .Assembly
+                        .GetTypes();
+                } catch (ReflectionTypeLoadException  ex) {
+                    Console.WriteLine("Assembly.GetTypes() exception details: {0}", ex);
+                    foreach (var le in ex.LoaderExceptions) {
+                        Console.WriteLine("Loader exception details: {0}", le);
+                    }
+                    allTypes = ex.Types.Where(t => t != null);
+                }
+                return allTypes
                     .Where(t => t.IsClass && !t.IsAbstract && httpControllerType.IsAssignableFrom(t))
                     .ToList();
             }
